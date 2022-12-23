@@ -12,6 +12,7 @@ namespace ToDoAPI.Controllers
     public class TodoListController : ControllerBase
     {
         private readonly ToDoService _toDoService;
+        private readonly string mensagemError = $"Não foi encontrado essa nota!!";
 
         public TodoListController(ToDoService toDoService) =>
             _toDoService = toDoService;
@@ -27,14 +28,15 @@ namespace ToDoAPI.Controllers
 
             if (todo is null)
             {
-                return NotFound();
+                return NotFound(mensagemError);
             }
 
-            return todo;
+            return Ok(todo);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(TodoList newToDo)
+        public async Task<IActionResult> Post(
+            [FromBody]TodoList newToDo)
         {
             await _toDoService.CreateAsync(newToDo);
 
@@ -42,13 +44,14 @@ namespace ToDoAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, TodoList updatedToDo)
+        public async Task<IActionResult> Update(string id, 
+            [FromBody] TodoList updatedToDo)
         {
             var todo = await _toDoService.GetAsync(id);
 
             if (todo is null)
             {
-                return NotFound();
+                return NotFound(mensagemError);
             }
 
             updatedToDo.Id = todo.Id;
@@ -65,7 +68,7 @@ namespace ToDoAPI.Controllers
 
             if (todo is null)
             {
-                return NotFound();
+                return NotFound(mensagemError);
             }
 
             await _toDoService.RemoveAsync(id);
